@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#05030c" />
+  <meta name="description" content="NEON NINJA — a 60-second cyberpunk arcade runner." />
+  <title>NEON NINJA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main id="app" class="app" data-mode="menu">
+    <canvas id="gameCanvas" aria-label="Neon Ninja game field"></canvas>
+
+    <div class="screen-fx scanlines" aria-hidden="true"></div>
+    <div class="screen-fx vignette" aria-hidden="true"></div>
+    <div class="screen-fx danger-edge" aria-hidden="true"></div>
+
+    <header id="hud" class="hud is-hidden" aria-label="Game status">
+      <div class="hud-side hud-side--left">
+        <span class="hud-label">VITALITY</span>
+        <div id="lives" class="lives" role="img" aria-label="3 lives">
+          <span class="life"></span>
+          <span class="life"></span>
+          <span class="life"></span>
+        </div>
+      </div>
+
+      <div class="hud-timer">
+        <div class="timer-value-wrap">
+          <span id="timerValue" class="timer-value">60</span>
+          <span class="timer-unit">SEC</span>
+        </div>
+        <div class="timer-track"><span id="timerFill" class="timer-fill"></span></div>
+        <div id="comboHud" class="combo-hud" aria-live="polite">
+          <span>CHAIN</span>
+          <b id="comboValue">0</b>
+          <span class="combo-bar"><i id="comboFill"></i></span>
+        </div>
+      </div>
+
+      <div class="hud-side hud-side--right">
+        <div class="hud-actions">
+          <button id="pauseBtn" class="icon-btn" type="button" aria-label="Pause game" title="Pause (P)">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14" /></svg>
+          </button>
+          <button class="icon-btn js-sound" type="button" aria-label="Mute audio" aria-pressed="false" title="Toggle sound">
+            <svg class="icon-sound-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" /><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" /></svg>
+            <svg class="icon-sound-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" /><path d="m17 9 5 6m0-6-5 6" /></svg>
+          </button>
+        </div>
+        <div class="score-box">
+          <span class="hud-label">SCORE</span>
+          <strong id="scoreValue">00000</strong>
+        </div>
+        <div class="best-line">BEST <span id="bestHud">00000</span></div>
+      </div>
+    </header>
+
+    <div id="goBanner" class="go-banner" aria-hidden="true">GO</div>
+
+    <div id="hintBar" class="hint-bar" aria-hidden="true">
+      <span><kbd>SPACE</kbd><kbd>↑</kbd> JUMP</span>
+      <span><kbd>↓</kbd> SLIDE</span>
+      <span class="hint-bar__touch">USE THE ON-SCREEN CONTROLS</span>
+    </div>
+
+    <div id="touchControls" class="touch-controls" aria-label="Touch controls">
+      <button id="btnSlide" class="touch-btn touch-btn--slide" type="button" aria-label="Slide">
+        <span class="touch-btn__icon" aria-hidden="true">↓</span>
+        <span class="touch-btn__label">SLIDE</span>
+      </button>
+      <button id="btnJump" class="touch-btn touch-btn--jump" type="button" aria-label="Jump">
+        <span class="touch-btn__icon" aria-hidden="true">↑</span>
+        <span class="touch-btn__label">JUMP</span>
+      </button>
+    </div>
+
+    <section id="startScreen" class="overlay overlay--start is-visible" aria-label="Start screen">
+      <div class="overlay-grid" aria-hidden="true"></div>
+      <div class="panel panel--start">
+        <p class="eyebrow">ARCADE PROTOCOL <span>//</span> 2088</p>
+        <div class="logo-wrap">
+          <h1 class="logo" aria-label="Neon Ninja">
+            <span class="logo__neon" data-text="NEON">NEON</span>
+            <span class="logo__ninja" data-text="NINJA">NINJA</span>
+          </h1>
+          <span class="logo-slice" aria-hidden="true"></span>
+        </div>
+        <p class="tagline">Cut through the neon. Outrun the grid.</p>
+        <p class="brief">Jump. Slide. Air-slash drones. Survive sixty seconds.</p>
+
+        <button id="startBtn" class="btn btn--primary" type="button">
+          <span>INITIATE RUN</span>
+          <span class="btn__arrow" aria-hidden="true">→</span>
+        </button>
+
+        <div class="controls-row">
+          <div class="control-hint"><kbd>SPACE</kbd><kbd>↑</kbd><span>JUMP</span></div>
+          <div class="control-hint"><kbd>↓</kbd><span>SLIDE</span></div>
+          <div class="control-hint control-hint--touch"><span>TAP CONTROLS</span><span>TO MOVE</span></div>
+        </div>
+
+        <div class="meta-row">
+          <span>BEST <b id="bestStart">00000</b></span>
+          <span>60 SEC</span>
+          <span>3 LIVES</span>
+        </div>
+
+        <button class="sound-toggle js-sound" type="button" aria-pressed="false">
+          <span class="sound-dot" aria-hidden="true"></span>
+          <span class="sound-label">SOUND ON</span>
+        </button>
+      </div>
+    </section>
+
+    <section id="pauseScreen" class="overlay" aria-label="Pause screen" aria-hidden="true">
+      <div class="panel panel--small">
+        <p class="eyebrow">LINK <span>//</span> SUSPENDED</p>
+        <h2 class="overlay-title">PAUSED</h2>
+        <p class="overlay-copy">The city waits. Catch your breath, ninja.</p>
+        <div class="overlay-buttons">
+          <button id="resumeBtn" class="btn btn--primary" type="button">RESUME RUN</button>
+          <button id="quitBtn" class="btn btn--ghost" type="button">ABORT RUN</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="gameOverScreen" class="overlay" aria-label="Game over" aria-hidden="true">
+      <div class="panel panel--result">
+        <p id="overTitle" class="eyebrow">RUN TERMINATED</p>
+        <h2 id="gameOverTitle" class="overlay-title">SIGNAL LOST</h2>
+        <div id="newBest" class="new-best" hidden>NEW HIGH SCORE</div>
+
+        <div class="final-score-wrap">
+          <span>FINAL SCORE</span>
+          <strong id="finalScore">00000</strong>
+        </div>
+
+        <div class="result-grid">
+          <div><span>BEST</span><b id="finalBest">00000</b></div>
+          <div><span>COINS</span><b id="finalCoins">0</b></div>
+          <div><span>DRONES</span><b id="finalDrones">0</b></div>
+          <div><span>DISTANCE</span><b id="finalDistance">0m</b></div>
+        </div>
+
+        <div class="overlay-buttons">
+          <button id="replayBtn" class="btn btn--primary" type="button">RUN IT BACK</button>
+          <button id="menuBtn" class="btn btn--ghost" type="button">MAIN MENU</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="game.js" defer></script>
+</body>
+</html>
